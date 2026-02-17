@@ -209,10 +209,10 @@ export class ChartApi<HorzScaleItem> implements IChartApiBase<HorzScaleItem>, Da
 		paneIndex: number = 0
 	): ISeriesApi<T, HorzScaleItem> {
 		return this._addSeriesImpl<T>(
-				definition,
-				options,
-				paneIndex
-			);
+			definition,
+			options,
+			paneIndex
+		);
 	}
 
 	public removeSeries(seriesApi: SeriesApi<SeriesType, HorzScaleItem>): void {
@@ -271,6 +271,11 @@ export class ChartApi<HorzScaleItem> implements IChartApiBase<HorzScaleItem>, Da
 	}
 
 	public priceScale(priceScaleId: string, paneIndex: number = 0): IPriceScaleApi {
+		if (priceScaleId === undefined) {
+			warn('Using ChartApi.priceScale() method without arguments has been deprecated, pass valid price scale id instead');
+			priceScaleId = this._chartWidget.model().defaultVisiblePriceScaleId();
+		}
+
 		return new PriceScaleApi(this._chartWidget, priceScaleId, paneIndex);
 	}
 
@@ -379,6 +384,14 @@ export class ChartApi<HorzScaleItem> implements IChartApiBase<HorzScaleItem>, Da
 		return this._horzScaleBehavior;
 	}
 
+	public fullUpdate(): void {
+		return this._chartWidget.model().fullUpdate();
+	}
+
+	public setCrosshair(x: number, y: number, visible: boolean): void {
+		this._chartWidget.paneWidgets()[0].setCrosshair(x, y, visible);
+	}
+
 	private _addSeriesImpl<
 		TSeries extends SeriesType,
 		TData extends WhitespaceData<HorzScaleItem> = SeriesDataItemTypeMap<HorzScaleItem>[TSeries],
@@ -438,7 +451,7 @@ export class ChartApi<HorzScaleItem> implements IChartApiBase<HorzScaleItem>, Da
 
 		const hoveredSeries =
 			param.hoveredSeries === undefined ||
-			!this._seriesMapReversed.has(param.hoveredSeries)
+				!this._seriesMapReversed.has(param.hoveredSeries)
 				? undefined
 				: this._mapSeriesToApi(param.hoveredSeries);
 

@@ -54,10 +54,17 @@ export function getChecker<HorzScaleItem>(type: SeriesType): Checker<HorzScaleIt
 		case 'Line':
 		case 'Histogram':
 			return checkLineItem.bind(null, type);
+		case 'CloudArea':
+		case 'BrokenArea':
+			return checkNothing.bind(null, type);
 
 		case 'Custom':
 			return checkCustomItem.bind(null);
 	}
+}
+
+function checkNothing(type: unknown, barItem: unknown) {
+	//
 }
 
 function checkBarItem<HorzScaleItem>(
@@ -70,15 +77,13 @@ function checkBarItem<HorzScaleItem>(
 	(['open', 'high', 'low', 'close'] as (keyof OhlcData)[]).forEach((key: keyof OhlcData) => {
 		assert(
 			typeof barItem[key] === 'number',
-			`${type} series item data value of ${key} must be a number, got=${typeof barItem[key]}, value=${
-				barItem[key]
+			`${type} series item data value of ${key} must be a number, got=${typeof barItem[key]}, value=${barItem[key]
 			}`
 		);
 
 		assert(
 			isSafeValue(barItem[key]),
-			`${type} series item data value of ${key} must be between ${MIN_SAFE_VALUE.toPrecision(16)} and ${MAX_SAFE_VALUE.toPrecision(16)}, got=${typeof barItem[key]}, value=${
-				barItem[key]
+			`${type} series item data value of ${key} must be between ${MIN_SAFE_VALUE.toPrecision(16)} and ${MAX_SAFE_VALUE.toPrecision(16)}, got=${typeof barItem[key]}, value=${barItem[key]
 			}`
 		);
 	});
@@ -94,15 +99,13 @@ function checkLineItem<HorzScaleItem>(
 
 	assert(
 		typeof lineItem.value === 'number',
-		`${type} series item data value must be a number, got=${typeof lineItem.value}, value=${
-			lineItem.value
+		`${type} series item data value must be a number, got=${typeof lineItem.value}, value=${lineItem.value
 		}`
 	);
 
 	assert(
 		isSafeValue(lineItem.value),
-		`${type} series item data value must be between ${MIN_SAFE_VALUE.toPrecision(16)} and ${MAX_SAFE_VALUE.toPrecision(16)}, got=${typeof lineItem.value}, value=${
-			lineItem.value
+		`${type} series item data value must be between ${MIN_SAFE_VALUE.toPrecision(16)} and ${MAX_SAFE_VALUE.toPrecision(16)}, got=${typeof lineItem.value}, value=${lineItem.value
 		}`
 	);
 }

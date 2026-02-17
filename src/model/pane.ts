@@ -451,7 +451,10 @@ export class Pane implements IDestroyable, IPrimitiveHitTestSource {
 
 		source.setZorder(order);
 
-		priceScale.addDataSource(source);
+		if (typeof source.seriesType === 'undefined' || source.seriesType() !== 'BrokenArea') {
+			priceScale.addDataSource(source);
+		}
+
 		source.setPriceScale(priceScale);
 
 		this.recalculatePriceScale(priceScale);

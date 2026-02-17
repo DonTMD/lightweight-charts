@@ -41,6 +41,20 @@ export interface CustomPlotRow extends PlotRow {
 	readonly color?: string;
 }
 
+export interface BrokenAreaPlotRow extends PlotRow {
+	readonly color?: string;
+	readonly label?: string;
+	readonly extendRight?: boolean;
+	readonly id?: string;
+}
+
+export interface CloudAreaPlotRow extends PlotRow {
+	readonly higherLineColor?: string;
+	readonly lowerLineColor?: string;
+	readonly negativeColor?: string;
+	readonly positiveColor?: string;
+}
+
 export interface SeriesPlotRowTypeAtTypeMap {
 	Bar: BarPlotRow;
 	Candlestick: CandlestickPlotRow;
@@ -49,6 +63,8 @@ export interface SeriesPlotRowTypeAtTypeMap {
 	Line: LinePlotRow;
 	Histogram: HistogramPlotRow;
 	Custom: CustomPlotRow;
+	CloudArea: CloudAreaPlotRow;
+	BrokenArea: BrokenAreaPlotRow;
 }
 
 export type SeriesPlotRow<T extends SeriesType = SeriesType> = SeriesPlotRowTypeAtTypeMap[T];

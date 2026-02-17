@@ -398,6 +398,7 @@ export interface IChartModelBase {
 	cursorUpdate(): void;
 	clearCurrentPosition(): void;
 	setAndSaveCurrentPosition(x: Coordinate, y: Coordinate, event: TouchMouseEventData | null, pane: Pane): void;
+	setAndSaveCurrentPositionFire(x: Coordinate, y: Coordinate, fire: boolean, pane: Pane): void;
 
 	recalculatePane(pane: Pane | null): void;
 
@@ -585,7 +586,7 @@ export class ChartModel<HorzScaleItem> implements IDestroyable, IChartModelBase 
 			this._priceScalesOptionsChanged.fire();
 			this.fullUpdate();
 			return;
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
 		} else if (priceScaleId === DefaultPriceScaleId.Right) {
 			merge(this._options, {
 				rightPriceScale: options,
@@ -863,6 +864,30 @@ export class ChartModel<HorzScaleItem> implements IDestroyable, IChartModelBase 
 		}
 	}
 
+	public setAndSaveCurrentPositionFire(x: Coordinate, y: Coordinate, fire: boolean, pane: Pane): void {
+		this._crosshair.saveOriginCoord(x, NaN as Coordinate);
+		let index = this._timeScale.coordinateToIndex(x);
+		let price = NaN;
+
+		const visibleBars = this._timeScale.visibleStrictRange();
+		if (visibleBars !== null) {
+			index = Math.min(Math.max(visibleBars.left(), index), visibleBars.right()) as TimePointIndex;
+		}
+
+		const priceScale = pane.defaultPriceScale();
+		const firstValue = priceScale.firstValue();
+		if (firstValue !== null) {
+			price = priceScale.coordinateToPrice(y, firstValue);
+		}
+		price = this._magnet.align(price, index, pane);
+
+		this._crosshair.setPosition(index, price, pane);
+		this.cursorUpdate();
+		if (fire) {
+			this._crosshairMoved.fire(this._crosshair.appliedIndex(), { x, y }, null);
+		}
+	}
+
 	// A position provided external (not from an internal event listener)
 	public setAndSaveSyntheticPosition(price: number, horizontalPosition: HorzScaleItem, pane: Pane): void {
 		const priceScale = pane.defaultPriceScale();
@@ -943,7 +968,7 @@ export class ChartModel<HorzScaleItem> implements IDestroyable, IChartModelBase 
 
 	public recalculateAllPanes(): void {
 		this._panes.forEach((p: Pane) => p.recalculate());
-		this.updateCrosshair();
+		// this.updateCrosshair();
 	}
 
 	public destroy(): void {

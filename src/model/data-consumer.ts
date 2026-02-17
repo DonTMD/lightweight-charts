@@ -58,6 +58,22 @@ export interface LineData<HorzScaleItem = Time> extends SingleValueData<HorzScal
 	color?: string;
 }
 
+export interface CloudAreaData<HorzScaleItem = Time> extends SingleValueData<HorzScaleItem> {
+	time: HorzScaleItem;
+	higherValue?: number;
+	lowerValue?: number;
+}
+
+export interface BrokenCloudAreaData<HorzScaleItem = Time> extends SingleValueData<HorzScaleItem> {
+	time: HorzScaleItem;
+	higherValue?: number;
+	lowerValue?: number;
+	color?: string;
+	label?: string;
+	extendRight?: boolean;
+	id?: string;
+}
+
 /**
  * Structure describing a single item of data for histogram series
  */
@@ -179,13 +195,19 @@ export interface CandlestickData<HorzScaleItem = Time> extends OhlcData<HorzScal
 }
 
 export function isWhitespaceData<HorzScaleItem = Time>(data: SeriesDataItemTypeMap<HorzScaleItem>[SeriesType]): data is WhitespaceData<HorzScaleItem> {
-	return (data as Partial<BarData<HorzScaleItem>>).open === undefined && (data as Partial<LineData<HorzScaleItem>>).value === undefined;
+	return (data as Partial<CloudAreaData>).lowerValue === undefined && (data as Partial<BarData<HorzScaleItem>>).open === undefined && (data as Partial<LineData<HorzScaleItem>>).value === undefined;
 }
 
 export function isFulfilledData<HorzScaleItem, T extends SeriesDataItemTypeMap<HorzScaleItem>[SeriesType]>(
 	data: T
 ): data is Extract<T, BarData<HorzScaleItem> | LineData<HorzScaleItem> | HistogramData<HorzScaleItem>> {
-	return isFulfilledBarData(data) || isFulfilledLineData(data);
+	return isFulfilledCloudAreaData(data) || isFulfilledBarData(data) || isFulfilledLineData(data);
+}
+
+export function isFulfilledCloudAreaData<HorzScaleItem, T extends SeriesDataItemTypeMap<HorzScaleItem>[SeriesType]>(
+	data: T
+): data is Extract<T, CloudAreaData> {
+	return (data as Partial<CloudAreaData>).lowerValue !== undefined;
 }
 
 export function isFulfilledBarData<HorzScaleItem, T extends SeriesDataItemTypeMap<HorzScaleItem>[SeriesType]>(
@@ -234,6 +256,14 @@ export interface SeriesDataItemTypeMap<HorzScaleItem = Time> {
 	 * The base types of an custom series data.
 	 */
 	Custom: CustomData<HorzScaleItem> | CustomSeriesWhitespaceData<HorzScaleItem>;
+	/*
+		The types of cloud area series data.
+	*/
+	CloudArea: CloudAreaData<HorzScaleItem> | WhitespaceData<HorzScaleItem>;
+	/*
+		The types of broken area series data.
+	*/
+	BrokenArea: BrokenCloudAreaData<HorzScaleItem> | WhitespaceData<HorzScaleItem>;
 }
 
 export interface DataUpdatesConsumer<TSeriesType extends SeriesType, HorzScaleItem = Time> {

@@ -531,6 +531,25 @@ export class PaneWidget implements IDestroyable, MouseEventHandlers {
 		this._drawSources(target, paneViewsGetter);
 	}
 
+	public setCrosshair(xx: number, yy: number, visible: boolean): void {
+		if (!this._state) {
+			return;
+		}
+
+		if (visible) {
+			const x = xx as Coordinate;
+			const y = yy as Coordinate;
+			this._setCrosshairPositionNoFire(x, y);
+		} else {
+			this._state.model().setHoveredSource(null);
+			this._clearCrosshairPosition();
+		}
+	}
+
+	private _setCrosshairPositionNoFire(x: Coordinate, y: Coordinate): void {
+		this._model().setAndSaveCurrentPositionFire(this._correctXCoord(x), this._correctYCoord(y), false, ensureNotNull(this._state));
+	}
+
 	private _onStateDestroyed(): void {
 		if (this._state !== null) {
 			this._state.onDestroyed().unsubscribeAll(this);
@@ -645,6 +664,14 @@ export class PaneWidget implements IDestroyable, MouseEventHandlers {
 
 	private _preventScroll(event: TouchMouseEvent): boolean {
 		return event.isTouch && this._longTap || this._startTrackPoint !== null;
+	}
+
+	private _correctXCoord(x: Coordinate): Coordinate {
+		return Math.max(0, Math.min(x, this._size.width - 1)) as Coordinate;
+	}
+
+	private _correctYCoord(y: Coordinate): Coordinate {
+		return Math.max(0, Math.min(y, this._size.height - 1)) as Coordinate;
 	}
 
 	private _setCrosshairPosition(x: Coordinate, y: Coordinate, event: MouseEventHandlerEventBase): void {

@@ -290,6 +290,16 @@ export interface ISeriesApi<
 	priceLines(): IPriceLine[];
 
 	/**
+	 * Removes all existing price line
+	 */
+	removeAllPriceLines(): IPriceLine | void;
+
+	/**
+	 * Get price line at (or near) a given price
+	 */
+	getPriceLine(price: number, index?: number): IPriceLine | void;
+
+	/**
 	 * Return current series type.
 	 *
 	 * @returns Type of the series.
@@ -303,6 +313,7 @@ export interface ISeriesApi<
 	 * ```
 	 */
 	seriesType(): TSeriesType;
+	setExtensionsBoundaries(extensionsBoundaries: { [id: string]: number }): void;
 
 	/**
 	 * Return the last value data of the series.

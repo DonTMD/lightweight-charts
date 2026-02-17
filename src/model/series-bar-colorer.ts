@@ -11,6 +11,8 @@ import {
 	CustomStyleOptions,
 	HistogramStyleOptions,
 	LineStyleOptions,
+	BrokenAreaStyleOptions,
+	CloudAreaStyleOptions,
 	SeriesOptionsMap,
 	SeriesType,
 } from './series-options';
@@ -38,7 +40,15 @@ export interface AreaFillColorerStyle {
 	topColor: string;
 	bottomColor: string;
 }
+export interface CloudAreaBarColorerStyle extends CommonBarColorerStyle {
+	positiveColor: string;
+	negativeColor: string;
+	higherLineColor: string;
+	lowerLineColor: string;
+}
 export interface AreaBarColorerStyle extends CommonBarColorerStyle, AreaFillColorerStyle, LineStrokeColorerStyle {
+}
+export interface BrokenAreaBarColorerStyle extends CommonBarColorerStyle, LineStrokeColorerStyle {
 }
 
 export interface BaselineStrokeColorerStyle {
@@ -64,7 +74,7 @@ export interface CandlesticksColorerStyle extends CommonBarColorerStyle {
 	barWickColor: string;
 }
 
-export interface CustomBarColorerStyle extends CommonBarColorerStyle {}
+export interface CustomBarColorerStyle extends CommonBarColorerStyle { }
 
 export interface BarStylesMap {
 	Bar: BarColorerStyle;
@@ -73,6 +83,8 @@ export interface BarStylesMap {
 	Baseline: BaselineBarColorerStyle;
 	Line: LineBarColorerStyle;
 	Histogram: HistogramBarColorerStyle;
+	CloudArea: CloudAreaBarColorerStyle;
+	BrokenArea: BrokenAreaBarColorerStyle;
 	Custom: CustomBarColorerStyle;
 }
 
@@ -94,7 +106,6 @@ export interface ISeriesBarColorer<T extends SeriesType> {
 }
 
 const barStyleFnMap: BarStylesFnMap = {
-	// eslint-disable-next-line @typescript-eslint/naming-convention
 	Bar: (findBar: FindBarFn, barStyle: BarStyleOptions, barIndex: TimePointIndex, precomputedBars?: PrecomputedBars): BarColorerStyle => {
 		const upColor = barStyle.upColor;
 		const downColor = barStyle.downColor;
@@ -106,7 +117,6 @@ const barStyleFnMap: BarStylesFnMap = {
 			barColor: currentBar.color ?? (isUp ? upColor : downColor),
 		};
 	},
-	// eslint-disable-next-line @typescript-eslint/naming-convention
 	Candlestick: (findBar: FindBarFn, candlestickStyle: CandlestickStyleOptions, barIndex: TimePointIndex, precomputedBars?: PrecomputedBars): CandlesticksColorerStyle => {
 		const upColor = candlestickStyle.upColor;
 		const downColor = candlestickStyle.downColor;
@@ -125,7 +135,6 @@ const barStyleFnMap: BarStylesFnMap = {
 			barWickColor: currentBar.wickColor ?? (isUp ? wickUpColor : wickDownColor),
 		};
 	},
-	// eslint-disable-next-line @typescript-eslint/naming-convention
 	Custom: (findBar: FindBarFn, customStyle: CustomStyleOptions, barIndex: TimePointIndex, precomputedBars?: PrecomputedBars): CustomBarColorerStyle => {
 		const currentBar = ensureNotNull(findBar(barIndex, precomputedBars)) as SeriesPlotRow<'Line'>;
 
@@ -133,7 +142,6 @@ const barStyleFnMap: BarStylesFnMap = {
 			barColor: currentBar.color ?? customStyle.color,
 		};
 	},
-	// eslint-disable-next-line @typescript-eslint/naming-convention
 	Area: (findBar: FindBarFn, areaStyle: AreaStyleOptions, barIndex: TimePointIndex, precomputedBars?: PrecomputedBars): AreaBarColorerStyle => {
 		const currentBar = ensureNotNull(findBar(barIndex, precomputedBars)) as SeriesPlotRow<'Area'>;
 		return {
@@ -143,7 +151,6 @@ const barStyleFnMap: BarStylesFnMap = {
 			bottomColor: currentBar.bottomColor ?? areaStyle.bottomColor,
 		};
 	},
-	// eslint-disable-next-line @typescript-eslint/naming-convention
 	Baseline: (findBar: FindBarFn, baselineStyle: BaselineStyleOptions, barIndex: TimePointIndex, precomputedBars?: PrecomputedBars): BaselineBarColorerStyle => {
 		const currentBar = ensureNotNull(findBar(barIndex, precomputedBars)) as SeriesPlotRow<'Baseline'>;
 		const isAboveBaseline = currentBar.value[PlotRowValueIndex.Close] >= baselineStyle.baseValue.price;
@@ -158,7 +165,6 @@ const barStyleFnMap: BarStylesFnMap = {
 			bottomFillColor2: currentBar.bottomFillColor2 ?? baselineStyle.bottomFillColor2,
 		};
 	},
-	// eslint-disable-next-line @typescript-eslint/naming-convention
 	Line: (findBar: FindBarFn, lineStyle: LineStyleOptions, barIndex: TimePointIndex, precomputedBars?: PrecomputedBars): LineBarColorerStyle => {
 		const currentBar = ensureNotNull(findBar(barIndex, precomputedBars)) as SeriesPlotRow<'Line'>;
 
@@ -167,11 +173,28 @@ const barStyleFnMap: BarStylesFnMap = {
 			lineColor: currentBar.color ?? lineStyle.color,
 		};
 	},
-	// eslint-disable-next-line @typescript-eslint/naming-convention
 	Histogram: (findBar: FindBarFn, histogramStyle: HistogramStyleOptions, barIndex: TimePointIndex, precomputedBars?: PrecomputedBars): HistogramBarColorerStyle => {
 		const currentBar = ensureNotNull(findBar(barIndex, precomputedBars)) as SeriesPlotRow<'Histogram'>;
 		return {
 			barColor: currentBar.color ?? histogramStyle.color,
+		};
+	},
+	BrokenArea: (findBar: FindBarFn, brokenAreaStyle: BrokenAreaStyleOptions, barIndex: TimePointIndex, precomputedBars?: PrecomputedBars): BrokenAreaBarColorerStyle => {
+		const currentBar = ensureNotNull(findBar(barIndex, precomputedBars)) as SeriesPlotRow<'BrokenArea'>;
+		return {
+			barColor: currentBar.color ?? brokenAreaStyle.color,
+			lineColor: brokenAreaStyle.strokeColor,
+		};
+	},
+	CloudArea: (findBar: FindBarFn, cloudAreaStyle: CloudAreaStyleOptions, barIndex: TimePointIndex, precomputedBars?: PrecomputedBars): CloudAreaBarColorerStyle => {
+		const currentBar = ensureNotNull(findBar(barIndex, precomputedBars)) as SeriesPlotRow<'Baseline'>;
+		const isAboveBaseline = currentBar.value[PlotRowValueIndex.Close] >= currentBar.value[PlotRowValueIndex.Open];
+		return {
+			barColor: isAboveBaseline ? cloudAreaStyle.positiveColor : cloudAreaStyle.negativeColor,
+			negativeColor: cloudAreaStyle.negativeColor,
+			positiveColor: cloudAreaStyle.positiveColor,
+			higherLineColor: cloudAreaStyle.higherLineColor,
+			lowerLineColor: cloudAreaStyle.lowerLineColor,
 		};
 	},
 };

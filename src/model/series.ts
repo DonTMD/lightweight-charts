@@ -16,6 +16,7 @@ import { SeriesPriceLinePaneView } from '../views/pane/series-price-line-pane-vi
 import { IPriceAxisView } from '../views/price-axis/iprice-axis-view';
 import { SeriesPriceAxisView } from '../views/price-axis/series-price-axis-view';
 import { ITimeAxisView } from '../views/time-axis/itime-axis-view';
+import { SeriesBrokenAreaPaneView } from './series/broken-area-pane-view';
 
 import { AutoscaleInfoImpl } from './autoscale-info-impl';
 import { BarPrice } from './bar';
@@ -37,6 +38,7 @@ import { PriceDataSource } from './price-data-source';
 import { PriceLineOptions } from './price-line-options';
 import { PriceRangeImpl } from './price-range-impl';
 import { PriceScale } from './price-scale';
+import { convertPriceRangeFromLog } from './price-scale-conversions';
 import { SeriesBarColorer } from './series-bar-colorer';
 import { createSeriesPlotList, SeriesPlotList, SeriesPlotRow } from './series-data';
 import {
@@ -263,7 +265,7 @@ export class Series<T extends SeriesType> extends PriceDataSource implements IDe
 
 		// a series might affect crosshair by some options (like crosshair markers)
 		// that's why we need to update crosshair as well
-		model.updateCrosshair();
+		// model.updateCrosshair();
 
 		this._paneView.update('options');
 	}
@@ -292,7 +294,7 @@ export class Series<T extends SeriesType> extends PriceDataSource implements IDe
 		const sourcePane = this.model().paneForSource(this);
 		this.model().recalculatePane(sourcePane);
 		this.model().updateSource(this);
-		this.model().updateCrosshair();
+		// this.model().updateCrosshair();
 		this.model().lightUpdate();
 	}
 
@@ -313,6 +315,38 @@ export class Series<T extends SeriesType> extends PriceDataSource implements IDe
 
 	public priceLines(): CustomPriceLine[] {
 		return this._customPriceLines;
+	}
+
+	public getPriceLine(cursorPrice: number, cursorIndex?: number): CustomPriceLine | null {
+		const priceScale = this.priceScale();
+		let priceRange = priceScale.priceRange() as PriceRangeImpl;
+
+		if (priceScale.isLog()) {
+			priceRange = convertPriceRangeFromLog(priceRange, priceScale.logFormula());
+		}
+
+		let magnetPercent = 0.0001;
+
+		if (priceRange) {
+			const lookAroundPercent = 16 / priceScale.height();
+			const percentRange = Math.abs(priceRange.length()) / cursorPrice;
+			magnetPercent = lookAroundPercent * percentRange;
+		}
+
+		for (let i = 0; i < this._customPriceLines.length; i++) {
+			const customPriceLine = this._customPriceLines[i];
+			const { price, index } = this._customPriceLines[i].options();
+
+			if ((typeof cursorIndex === 'undefined' || typeof index === 'undefined' || cursorIndex >= index) && Math.abs(Math.abs(price - cursorPrice) / cursorPrice) < Math.abs(magnetPercent)) {
+				return customPriceLine;
+			}
+		}
+
+		return null;
+	}
+
+	public removeAllPriceLines(): void {
+		this._customPriceLines.splice(0, this._customPriceLines.length);
 	}
 
 	public seriesType(): T {
@@ -634,6 +668,10 @@ export class Series<T extends SeriesType> extends PriceDataSource implements IDe
 
 	public fulfilledIndices(): readonly TimePointIndex[] {
 		return this._data.indices();
+	}
+
+	public setExtensionsBoundaries(extensionsBoundaries: { [id: string]: number }): void {
+		(this._paneView as SeriesBrokenAreaPaneView).setExtensionsBoundaries(extensionsBoundaries);
 	}
 
 	private _isOverlay(): boolean {

@@ -2,7 +2,9 @@ import {
 	AreaData,
 	BarData,
 	BaselineData,
+	BrokenCloudAreaData,
 	CandlestickData,
+	CloudAreaData,
 	LineData,
 	OhlcData,
 	SeriesDataItemTypeMap,
@@ -14,7 +16,9 @@ import {
 	AreaPlotRow,
 	BarPlotRow,
 	BaselinePlotRow,
+	BrokenAreaPlotRow,
 	CandlestickPlotRow,
+	CloudAreaPlotRow,
 	CustomPlotRow,
 	LinePlotRow,
 	SeriesPlotRow,
@@ -137,6 +141,16 @@ function candlestickData<HorzScaleItem>(plotRow: CandlestickPlotRow): Candlestic
 	return result;
 }
 
+function brokenAreaData<HorzScaleItem>(plotRow: BrokenAreaPlotRow): BrokenCloudAreaData<HorzScaleItem> {
+	const result: BrokenCloudAreaData<HorzScaleItem> = singleValueData(plotRow);
+	return result;
+}
+
+function cloudAreaData<HorzScaleItem>(plotRow: CloudAreaPlotRow): CloudAreaData<HorzScaleItem> {
+	const result: CloudAreaData<HorzScaleItem> = singleValueData(plotRow);
+	return result;
+}
+
 export function getSeriesDataCreator<TSeriesType extends SeriesType, HorzScaleItem>(seriesType: TSeriesType): (plotRow: SeriesPlotRow<TSeriesType>) => SeriesDataItemTypeMap<HorzScaleItem>[TSeriesType] {
 	const seriesPlotRowToDataMap: SeriesPlotRowToDataMap<HorzScaleItem> = {
 		Area: areaData<HorzScaleItem>,
@@ -146,6 +160,8 @@ export function getSeriesDataCreator<TSeriesType extends SeriesType, HorzScaleIt
 		Bar: barData<HorzScaleItem>,
 		Candlestick: candlestickData<HorzScaleItem>,
 		Custom: customData<HorzScaleItem>,
+		BrokenArea: brokenAreaData<HorzScaleItem>,
+		CloudArea: cloudAreaData<HorzScaleItem>,
 	};
 	return seriesPlotRowToDataMap[seriesType];
 }

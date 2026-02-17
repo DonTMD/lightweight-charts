@@ -1,7 +1,7 @@
 import { DeepPartial } from '../helpers/strict-type-checks';
 
 import { ChartOptionsImpl } from '../model/chart-model';
-import { BarData, HistogramData, LineData, WhitespaceData } from '../model/data-consumer';
+import { BarData, BrokenCloudAreaData, HistogramData, LineData, WhitespaceData } from '../model/data-consumer';
 import { Time } from '../model/horz-scale-behavior-time/types';
 import { CustomData, ICustomSeriesPaneView } from '../model/icustom-series';
 import { IHorzScaleBehavior } from '../model/ihorz-scale-behavior';
@@ -62,7 +62,7 @@ export interface MouseEventParams<HorzScaleItem = Time> {
 	 * Keys of the map are {@link ISeriesApi} instances. Values are prices.
 	 * Values of the map are original data items
 	 */
-	seriesData: Map<ISeriesApi<SeriesType, HorzScaleItem>, BarData<HorzScaleItem> | LineData<HorzScaleItem> | HistogramData<HorzScaleItem> | CustomData<HorzScaleItem>>;
+	seriesData: Map<ISeriesApi<SeriesType, HorzScaleItem>, BarData<HorzScaleItem> | LineData<HorzScaleItem> | HistogramData<HorzScaleItem> | CustomData<HorzScaleItem> | BrokenCloudAreaData<HorzScaleItem>>;
 	/**
 	 * The {@link ISeriesApi} for the series at the point of the mouse event.
 	 */
@@ -354,4 +354,14 @@ export interface IChartApiBase<HorzScaleItem = Time> {
 	 * Returns the horizontal scale behaviour.
 	 */
 	horzBehaviour(): IHorzScaleBehavior<HorzScaleItem>;
+
+	/**
+	 * Trigger an full update.
+	 */
+	fullUpdate(): void;
+
+	/**
+	 * Sync crosshair
+	 */
+	setCrosshair(x: number, y: number, visible: boolean): void;
 }

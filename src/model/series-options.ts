@@ -353,6 +353,30 @@ export interface AreaStyleOptions {
 	lastPriceAnimation: LastPriceAnimationMode;
 }
 
+export interface CloudAreaStyleOptions {
+	positiveColor: string;
+	negativeColor: string;
+	higherLineColor: string;
+	higherLineStyle: LineStyle;
+	higherLineWidth: LineWidth;
+	higherLineType: LineType;
+	lowerLineColor: string;
+	lowerLineStyle: LineStyle;
+	lowerLineWidth: LineWidth;
+	lowerLineType: LineType;
+	crosshairMarkerVisible: boolean;
+	crosshairMarkerRadius: number;
+	crosshairMarkerBorderColor: string;
+	crosshairMarkerBackgroundColor: string;
+}
+
+export interface BrokenAreaStyleOptions {
+	color: string;
+	strokeColor: string;
+	strokeWidth: number;
+	infinite: boolean;
+}
+
 /**
  * Represents a type of priced base value of baseline series type.
  */
@@ -892,6 +916,14 @@ export type BaselineSeriesOptions = SeriesOptions<BaselineStyleOptions>;
 export type BaselineSeriesPartialOptions = SeriesPartialOptions<BaselineStyleOptions>;
 
 /**
+ * Structure describing cloud area series options.
+ */
+export type CloudAreaSeriesOptions = SeriesOptions<CloudAreaStyleOptions>;
+export type CloudAreaSeriesPartialOptions = SeriesPartialOptions<CloudAreaStyleOptions>;
+export type BrokenAreaSeriesOptions = SeriesOptions<BrokenAreaStyleOptions>;
+export type BrokenAreaSeriesPartialOptions = SeriesPartialOptions<BrokenAreaStyleOptions>;
+
+/**
  * Represents bar series options.
  */
 export type BarSeriesOptions = SeriesOptions<BarStyleOptions>;
@@ -967,6 +999,14 @@ export interface SeriesStyleOptionsMap {
 	 */
 	Histogram: HistogramStyleOptions;
 	/**
+	 * The type of line style options.
+	 */
+	BrokenArea: BrokenAreaStyleOptions;
+	/**
+	 * The type of histogram style options.
+	 */
+	CloudArea: CloudAreaStyleOptions;
+	/**
 	 * The type of a custom series' style options.
 	 */
 	Custom: CustomStyleOptions;
@@ -1002,6 +1042,8 @@ export interface SeriesOptionsMap {
 	 * The type of histogram series options.
 	 */
 	Histogram: HistogramSeriesOptions;
+	CloudArea: CloudAreaSeriesOptions;
+	BrokenArea: BrokenAreaSeriesOptions;
 	/**
 	 * The type of a custom series options.
 	 */
@@ -1038,6 +1080,8 @@ export interface SeriesPartialOptionsMap {
 	 * The type of histogram series partial options.
 	 */
 	Histogram: HistogramSeriesPartialOptions;
+	CloudArea: CloudAreaSeriesPartialOptions;
+	BrokenArea: BrokenAreaSeriesPartialOptions;
 	/**
 	 * The type of a custom series partial options.
 	 */

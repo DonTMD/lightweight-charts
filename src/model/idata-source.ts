@@ -39,6 +39,7 @@ export interface IDataSourcePaneViews extends IPluginPaneViews {
 export type DataSourcePaneViewGetterNames = keyof IDataSourcePaneViews;
 
 export interface IDataSource extends IDataSourcePaneViews, ZOrdered {
+	seriesType?(): string;
 	setZorder(value: number): void;
 	priceScale(): PriceScale | null;
 	setPriceScale(scale: PriceScale | null): void;

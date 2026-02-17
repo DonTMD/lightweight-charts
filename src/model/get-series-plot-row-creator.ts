@@ -7,7 +7,7 @@ import { SeriesPlotRow } from '../model/series-data';
 import { SeriesType } from '../model/series-options';
 import { TimePointIndex } from '../model/time-data';
 
-import { AreaData, BarData, BaselineData, CandlestickData, HistogramData, isWhitespaceData, LineData, SeriesDataItemTypeMap, WhitespaceData } from './data-consumer';
+import { AreaData, BarData, BaselineData, BrokenCloudAreaData, CandlestickData, CloudAreaData, HistogramData, isWhitespaceData, LineData, SeriesDataItemTypeMap, WhitespaceData } from './data-consumer';
 import { InternalHorzScaleItem } from './ihorz-scale-behavior';
 
 function getColoredLineBasedSeriesPlotRow<HorzScaleItem>(time: InternalHorzScaleItem, index: TimePointIndex, item: LineData | HistogramData, originalTime: HorzScaleItem): Mutable<SeriesPlotRow<'Line' | 'Histogram'>> {
@@ -101,6 +101,32 @@ function getCandlestickSeriesPlotRow<HorzScaleItem>(time: InternalHorzScaleItem,
 	return res;
 }
 
+function getCloudAreaSeriesPlotRow<HorzScaleItem>(time: InternalHorzScaleItem, index: TimePointIndex, item: CloudAreaData, originalTime: HorzScaleItem): Mutable<SeriesPlotRow<'CloudArea'>> {
+	return { index, time, value: [item.higherValue as number, item.higherValue as number, item.lowerValue as number, item.lowerValue as number], originalTime };
+}
+
+function getBrokenAreaSeriesPlotRow<HorzScaleItem>(time: InternalHorzScaleItem, index: TimePointIndex, item: BrokenCloudAreaData, originalTime: HorzScaleItem): Mutable<SeriesPlotRow<'BrokenArea'>> {
+	const res: Mutable<SeriesPlotRow<'BrokenArea'>> = { index, time, value: [item.higherValue as number, item.higherValue as number, item.lowerValue as number, item.lowerValue as number], originalTime };
+
+	if (typeof item.color !== 'undefined') {
+		res.color = item.color;
+	}
+
+	if (typeof item.label !== 'undefined') {
+		res.label = item.label;
+	}
+
+	if (typeof item.extendRight !== 'undefined') {
+		res.extendRight = item.extendRight;
+	}
+
+	if (typeof item.id !== 'undefined') {
+		res.id = item.id;
+	}
+
+	return res;
+}
+
 // The returned data is used for scaling the series, and providing the current value for the price scale
 export type CustomDataToPlotRowValueConverter<HorzScaleItem> = (item: CustomData<HorzScaleItem> | WhitespaceData) => number[];
 
@@ -124,6 +150,8 @@ type SeriesItemValueFnMap<HorzScaleItem> = {
 	[T in keyof SeriesDataItemTypeMap]: (time: InternalHorzScaleItem, index: TimePointIndex, item: SeriesDataItemTypeMap<HorzScaleItem>[T], originalTime: HorzScaleItem, dataToPlotRow?: CustomDataToPlotRowValueConverter<HorzScaleItem>, customIsWhitespace?: WhitespaceCheck<HorzScaleItem>) => Mutable<SeriesPlotRow<T> | WhitespacePlotRow>;
 };
 
+export type TimedSeriesItemValueFn = (time: InternalHorzScaleItem, index: TimePointIndex, item: SeriesDataItemTypeMap[SeriesType]) => Mutable<SeriesPlotRow | WhitespacePlotRow>;
+
 function wrapCustomValues<T extends SeriesPlotRow | WhitespacePlotRow, HorzScaleItem>(plotRow: Mutable<T>, bar: SeriesDataItemTypeMap<HorzScaleItem>[SeriesType]): Mutable<T> {
 	if (bar.customValues !== undefined) {
 		plotRow.customValues = bar.customValues;
@@ -140,7 +168,7 @@ function isWhitespaceDataWithCustomCheck<HorzScaleItem>(bar: SeriesDataItemTypeM
 	return isWhitespaceData(bar);
 }
 
-type GetPlotRowType = (typeof getBaselineSeriesPlotRow) | (typeof getBarSeriesPlotRow) | (typeof getCandlestickSeriesPlotRow) | (typeof getCustomSeriesPlotRow);
+type GetPlotRowType = (typeof getBaselineSeriesPlotRow) | (typeof getBarSeriesPlotRow) | (typeof getCandlestickSeriesPlotRow) | (typeof getCustomSeriesPlotRow) | (typeof getCloudAreaSeriesPlotRow) | (typeof getBrokenAreaSeriesPlotRow);
 
 function wrapWhitespaceData<TSeriesType extends SeriesType, HorzScaleItem>(createPlotRowFn: GetPlotRowType): SeriesItemValueFnMap<HorzScaleItem>[TSeriesType] {
 	return (time: InternalHorzScaleItem, index: TimePointIndex, bar: SeriesDataItemTypeMap<HorzScaleItem>[SeriesType], originalTime: HorzScaleItem, dataToPlotRow?: CustomDataToPlotRowValueConverter<HorzScaleItem>, customIsWhitespace?: WhitespaceCheck<HorzScaleItem>) => {
@@ -161,6 +189,8 @@ export function getSeriesPlotRowCreator<TSeriesType extends SeriesType, HorzScal
 		Histogram: wrapWhitespaceData(getColoredLineBasedSeriesPlotRow),
 		Line: wrapWhitespaceData(getColoredLineBasedSeriesPlotRow),
 		Custom: wrapWhitespaceData(getCustomSeriesPlotRow),
+		CloudArea: wrapWhitespaceData(getCloudAreaSeriesPlotRow),
+		BrokenArea: wrapWhitespaceData(getBrokenAreaSeriesPlotRow),
 	};
 	return seriesPlotRowFnMap[seriesType];
 }

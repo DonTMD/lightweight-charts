@@ -65,6 +65,8 @@ export interface SeriesDataAtTypeMap {
 	Candlestick: BarPrices;
 	Area: BarPrice;
 	Baseline: BarPrice;
+	CloudArea: BarPrice;
+	BrokenArea: BarPrice;
 	Line: BarPrice;
 	Histogram: BarPrice;
 	Custom: BarPrice;

@@ -30,6 +30,8 @@ export { areaSeries as AreaSeries } from './model/series/area-series';
 export { barSeries as BarSeries } from './model/series/bar-series';
 export { candlestickSeries as CandlestickSeries } from './model/series/candlestick-series';
 export { histogramSeries as HistogramSeries } from './model/series/histogram-series';
+export { brokenAreaSeries as BrokenAreaSeries } from './model/series/broken-area-series';
+export { cloudAreaSeries as CloudAreaSeries } from './model/series/cloud-area-series';
 /*
 	Plugins
 */
