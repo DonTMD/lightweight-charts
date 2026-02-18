@@ -1,6 +1,6 @@
 /*!
  * @license
- * TradingView Lightweight Charts™ v5.1.0-dev+202602170659
+ * TradingView Lightweight Charts™ v5.1.0-dev+202602180438
  * Copyright (c) 2026 TradingView, Inc.
  * Licensed under Apache License 2.0 https://www.apache.org/licenses/LICENSE-2.0
  */
@@ -16566,7 +16566,7 @@ const customSeriesDefaultOptions = {
  * Returns the current version as a string. For example `'3.3.0'`.
  */
 function version() {
-    return "5.1.0-dev+202602170659";
+    return "5.1.0-dev+202602180438";
 }
 
 export { areaSeries as AreaSeries, barSeries as BarSeries, baselineSeries as BaselineSeries, brokenAreaSeries as BrokenAreaSeries, candlestickSeries as CandlestickSeries, cloudAreaSeries as CloudAreaSeries, ColorType, CrosshairMode, histogramSeries as HistogramSeries, LastPriceAnimationMode, lineSeries as LineSeries, LineStyle, LineType, MismatchDirection, PriceLineSource, PriceScaleMode, TickMarkType, TrackingModeExitMode, createChart, createChartEx, createImageWatermark, createOptionsChart, createSeriesMarkers, createTextWatermark, createUpDownMarkers, createYieldCurveChart, customSeriesDefaultOptions, defaultHorzScaleBehavior, isBusinessDay, isUTCTimestamp, version };
