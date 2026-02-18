@@ -801,6 +801,9 @@ export class MouseEventHandler implements IDestroyable {
 		const eventLike = touch || (event as MouseEvent);
 		const box = this._target.getBoundingClientRect() || { left: 0, top: 0 };
 
+		const scaleX = box.width / this._target.offsetWidth || 1;
+		const scaleY = box.height / this._target.offsetHeight || 1;
+
 		return {
 			clientX: eventLike.clientX as Coordinate,
 			clientY: eventLike.clientY as Coordinate,
@@ -808,8 +811,8 @@ export class MouseEventHandler implements IDestroyable {
 			pageY: eventLike.pageY as Coordinate,
 			screenX: eventLike.screenX as Coordinate,
 			screenY: eventLike.screenY as Coordinate,
-			localX: (eventLike.clientX - box.left) as Coordinate,
-			localY: (eventLike.clientY - box.top) as Coordinate,
+			localX: ((eventLike.clientX - box.left) / scaleX) as Coordinate,
+			localY: ((eventLike.clientY - box.top) / scaleY) as Coordinate,
 
 			ctrlKey: event.ctrlKey,
 			altKey: event.altKey,

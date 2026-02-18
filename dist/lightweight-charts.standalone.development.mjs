@@ -1,6 +1,6 @@
 /*!
  * @license
- * TradingView Lightweight Charts™ v5.1.0-dev+202602180438
+ * TradingView Lightweight Charts™ v5.1.0-dev+202602180514
  * Copyright (c) 2026 TradingView, Inc.
  * Licensed under Apache License 2.0 https://www.apache.org/licenses/LICENSE-2.0
  */
@@ -8861,6 +8861,8 @@ class MouseEventHandler {
         // We have to use the last Touch instead
         const eventLike = touch || event;
         const box = this._private__target.getBoundingClientRect() || { left: 0, top: 0 };
+        const scaleX = box.width / this._private__target.offsetWidth || 1;
+        const scaleY = box.height / this._private__target.offsetHeight || 1;
         return {
             clientX: eventLike.clientX,
             clientY: eventLike.clientY,
@@ -8868,8 +8870,8 @@ class MouseEventHandler {
             pageY: eventLike.pageY,
             screenX: eventLike.screenX,
             screenY: eventLike.screenY,
-            localX: (eventLike.clientX - box.left),
-            localY: (eventLike.clientY - box.top),
+            localX: ((eventLike.clientX - box.left) / scaleX),
+            localY: ((eventLike.clientY - box.top) / scaleY),
             ctrlKey: event.ctrlKey,
             altKey: event.altKey,
             shiftKey: event.shiftKey,
@@ -16959,7 +16961,7 @@ const customSeriesDefaultOptions = {
  * Returns the current version as a string. For example `'3.3.0'`.
  */
 function version() {
-    return "5.1.0-dev+202602180438";
+    return "5.1.0-dev+202602180514";
 }
 
 export { areaSeries as AreaSeries, barSeries as BarSeries, baselineSeries as BaselineSeries, brokenAreaSeries as BrokenAreaSeries, candlestickSeries as CandlestickSeries, cloudAreaSeries as CloudAreaSeries, ColorType, CrosshairMode, histogramSeries as HistogramSeries, LastPriceAnimationMode, lineSeries as LineSeries, LineStyle, LineType, MismatchDirection, PriceLineSource, PriceScaleMode, TickMarkType, TrackingModeExitMode, createChart, createChartEx, createImageWatermark, createOptionsChart, createSeriesMarkers, createTextWatermark, createUpDownMarkers, createYieldCurveChart, customSeriesDefaultOptions, defaultHorzScaleBehavior, isBusinessDay, isUTCTimestamp, version };

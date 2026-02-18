@@ -247,15 +247,15 @@ export class PaneWidget implements IDestroyable, MouseEventHandlers {
 			return;
 		}
 		this._onMouseEvent();
-		const x = event.clientX;
-		const y = event.clientY;
+		const x = event.localX;
+		const y = event.localY;
 		this._setCrosshairPosition(x, y, event);
 	}
 
 	public mouseDownEvent(event: MouseEventHandlerMouseEvent): void {
 		this._onMouseEvent();
 		this._mouseTouchDownEvent();
-		this._setCrosshairPosition(event.clientX, event.clientY, event);
+		this._setCrosshairPosition(event.localX, event.localY, event);
 	}
 
 	public mouseMoveEvent(event: MouseEventHandlerMouseEvent): void {
@@ -263,8 +263,8 @@ export class PaneWidget implements IDestroyable, MouseEventHandlers {
 			return;
 		}
 		this._onMouseEvent();
-		const x = event.clientX;
-		const y = event.clientY;
+		const x = event.localX;
+		const y = event.localY;
 		this._setCrosshairPosition(x, y, event);
 	}
 
@@ -290,7 +290,7 @@ export class PaneWidget implements IDestroyable, MouseEventHandlers {
 	public pressedMouseMoveEvent(event: MouseEventHandlerMouseEvent): void {
 		this._onMouseEvent();
 		this._pressedMouseTouchMoveEvent(event);
-		this._setCrosshairPosition(event.clientX, event.clientY, event);
+		this._setCrosshairPosition(event.localX, event.localY, event);
 	}
 
 	public mouseUpEvent(event: MouseEventHandlerMouseEvent): void {
@@ -363,7 +363,7 @@ export class PaneWidget implements IDestroyable, MouseEventHandlers {
 		const crosshair = this._model().crosshairSource();
 		if (this._startTrackPoint !== null && crosshair.visible()) {
 			this._initCrosshairPosition = { x: crosshair.appliedX(), y: crosshair.appliedY() };
-			this._startTrackPoint = { x: event.clientX, y: event.clientY };
+			this._startTrackPoint = { x: event.localX, y: event.localY };
 		}
 	}
 
@@ -563,8 +563,8 @@ export class PaneWidget implements IDestroyable, MouseEventHandlers {
 	}
 
 	private _fireMouseClickDelegate(delegate: Delegate<TimePointIndex | null, Point, TouchMouseEventData>, event: MouseEventHandlerEventBase): void {
-		const x = event.clientX;
-		const y = event.clientY;
+		const x = event.localX;
+		const y = event.localY;
 		if (delegate.hasListeners()) {
 			delegate.fire(this._model().timeScale().coordinateToIndex(x), { x, y }, event);
 		}
